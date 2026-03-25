@@ -214,10 +214,10 @@ sequenceDiagram
 
 | Item | Detail |
 |------|--------|
-| **Provider** | Vercel หรือ Netlify |
-| **Platform** | Serverless, Node.js Environment |
+| **Provider** | Vercel (Production) / Docker Desktop (Local) |
+| **Platform** | Node.js Environment (Build), NGINX (Serve & Proxy) |
 | **Specs** | Auto-scaling (Free Tier) |
-| **Method** | CI/CD เชื่อมต่อ GitHub — auto build & deploy เมื่อ push |
+| **Method** | CI/CD ผ่าน GitHub (Vercel) หรือ `docker-compose` สำหรับ Local |
 | **Build Command** | `npm run build` |
 | **Output Directory** | `dist/` |
 
@@ -225,19 +225,27 @@ sequenceDiagram
 
 ## Getting Started
 
+### 🐳 วิธีที่ 1: รันผ่าน Docker (แนะนำสำหรับการเทสระบบคู่กับ Backend)
+หลังจากที่คุณรัน Backend Docker ไปแล้ว ให้รันคำสั่งนี้เพื่อเปิดหน้าบ้านและเชื่อมเน็ตเวิร์กเข้าด้วยกัน:
+```bash
+docker-compose up -d --build
+# → เข้าใช้งานผ่าน: http://localhost:3000
+```
+
+### 💻 วิธีที่ 2: รันสดบนเครื่อง (Development Mode)
 ```bash
 # 1. Install dependencies
 npm install
 
 # 2. Setup environment
 cp .env.example .env
-# แก้ไข VITE_API_URL ถ้า backend ไม่ได้รันที่ localhost:8080
+# เข้าไปแก้ไข VITE_API_URL ให้ชี้ไปที่ Backend ของคุณ
 
 # 3. Start dev server
 npm run dev
 # → http://localhost:5173
 
-# 4. Build for production
+# 4. Build for production (ไม่ต้องทำถ้าใช้ Vercel)
 npm run build
 ```
 
