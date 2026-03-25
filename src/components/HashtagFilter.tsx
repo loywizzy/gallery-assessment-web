@@ -22,7 +22,7 @@ export default function HashtagFilter({ hashtags, activeHashtag, onSelect }: Has
       {hashtags.map((tag) => (
         <button
           key={tag.id}
-          onClick={() => onSelect(tag.name)}
+          onClick={() => onSelect(activeHashtag === tag.name ? null : tag.name)}
           className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer ${
             activeHashtag === tag.name
               ? 'bg-blue-600 text-white shadow-md'

@@ -66,7 +66,7 @@ export default function Gallery() {
   const lastElementRef = useInfiniteScroll(loadMore, hasMore && !loading)
 
   const handleHashtagClick = (hashtag: string) => {
-    setActiveHashtag(hashtag)
+    setActiveHashtag((prev) => (prev === hashtag ? null : hashtag))
   }
 
   return (
