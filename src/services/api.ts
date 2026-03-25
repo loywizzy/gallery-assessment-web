@@ -14,10 +14,12 @@ const api = axios.create({
 export const getImages = async (
   page: number = 1,
   limit: number = 15,
-  hashtag?: string
+  hashtags?: string[]
 ): Promise<ImagesResponse> => {
   const params: Record<string, string | number> = { page, limit }
-  if (hashtag) params.hashtag = hashtag
+  if (hashtags && hashtags.length > 0) {
+    params.hashtags = hashtags.join(',')
+  }
 
   const { data } = await api.get<ImagesResponse>('/images', { params })
   return data

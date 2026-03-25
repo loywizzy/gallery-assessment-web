@@ -18,7 +18,7 @@ const breakpointColumns = {
 export default function Gallery() {
   const [images, setImages] = useState<Image[]>([])
   const [hashtags, setHashtags] = useState<HashtagWithCount[]>([])
-  const [activeHashtag, setActiveHashtag] = useState<string | null>(null)
+  const [activeHashtags, setActiveHashtags] = useState<string[]>([])
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [loading, setLoading] = useState(false)
@@ -31,11 +31,11 @@ export default function Gallery() {
   }, [])
 
   // Fetch images (initial + pagination)
-  const fetchImages = useCallback(async (pageNum: number, hashtag: string | null, append: boolean) => {
+  const fetchImages = useCallback(async (pageNum: number, currentHashtags: string[], append: boolean) => {
     if (loading) return
     setLoading(true)
     try {
-      const res = await getImages(pageNum, LIMIT, hashtag ?? undefined)
+      const res = await getImages(pageNum, LIMIT, currentHashtags.length > 0 ? currentHashtags : undefined)
       setImages((prev) => (append ? [...prev, ...res.data] : res.data))
       setHasMore(res.has_more)
     } catch (err) {
@@ -50,23 +50,35 @@ export default function Gallery() {
     setPage(1)
     setImages([])
     setHasMore(true)
-    fetchImages(1, activeHashtag, false)
+    fetchImages(1, activeHashtags, false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeHashtag])
+  }, [activeHashtags])
 
   // Load more
   const loadMore = useCallback(() => {
     if (!loading && hasMore) {
       const nextPage = page + 1
       setPage(nextPage)
-      fetchImages(nextPage, activeHashtag, true)
+      fetchImages(nextPage, activeHashtags, true)
     }
-  }, [loading, hasMore, page, activeHashtag, fetchImages])
+  }, [loading, hasMore, page, activeHashtags, fetchImages])
 
   const lastElementRef = useInfiniteScroll(loadMore, hasMore && !loading)
 
   const handleHashtagClick = (hashtag: string) => {
-    setActiveHashtag((prev) => (prev === hashtag ? null : hashtag))
+    setActiveHashtags((prev) => 
+      prev.includes(hashtag)
+        ? prev.filter((t) => t !== hashtag)
+        : [...prev, hashtag]
+    )
+  }
+
+  const handleFilterSelect = (hashtag: string | null) => {
+    if (hashtag === null) {
+      setActiveHashtags([])
+    } else {
+      handleHashtagClick(hashtag)
+    }
   }
 
   return (
@@ -79,8 +91,8 @@ export default function Gallery() {
           </h1>
           <HashtagFilter
             hashtags={hashtags}
-            activeHashtag={activeHashtag}
-            onSelect={setActiveHashtag}
+            activeHashtags={activeHashtags}
+            onSelect={handleFilterSelect}
           />
         </div>
       </header>
