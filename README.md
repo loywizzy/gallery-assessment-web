@@ -10,20 +10,20 @@ graph TB
         USER["User"]
     end
 
-    subgraph Frontend["📱 Frontend — Vercel / Netlify"]
+    subgraph Frontend["📱 Frontend — Vercel"]
         REACT["React + Vite SPA"]
         MASONRY["Masonry Layout"]
         SCROLL["Infinite Scroll"]
-        FILTER["Hashtag Filter"]
+        FILTER["Multi-Select Hashtags"]
     end
 
-    subgraph Backend["⚙️ Backend — Render / Koyeb"]
+    subgraph Backend["⚙️ Backend — Render"]
         GIN["Gin HTTP Server"]
         HANDLER["Handlers Layer"]
         REPO["Repository Layer"]
     end
 
-    subgraph Database["🗄️ Database — Supabase / Neon"]
+    subgraph Database["🗄️ Database — Supabase"]
         PG["PostgreSQL"]
     end
 
@@ -178,13 +178,13 @@ sequenceDiagram
 
     Note over User, DB: Hashtag Filtering
 
-    User->>FE: คลิก #nature
-    FE->>FE: Clear images, reset page=1
-    FE->>API: GET /api/images?page=1&limit=15&hashtag=nature
-    API->>DB: SELECT WHERE hashtag = nature
-    DB-->>API: filtered images
+    User->>FE: คลิก #nature และ #city
+    FE->>FE: Update activeHashtags array, reset page=1
+    FE->>API: GET /api/images?page=1&limit=15&hashtags=nature,city
+    API->>DB: WHERE EXISTS (...) AND ANY(nature, city) 
+    DB-->>API: filtered images (without duplicates)
     API-->>FE: 200 OK
-    FE->>User: แสดงเฉพาะรูป #nature
+    FE->>User: แสดงเฉพาะรูปที่มี hashtag ตรงตามที่เลือก
 ```
 
 ---
@@ -196,7 +196,7 @@ sequenceDiagram
 | **Gallery Display** | `Gallery.tsx` + `ImageCard.tsx` | แสดงรูปภาพพร้อม Hashtag ใต้รูป |
 | **Masonry Layout** | `react-masonry-css` | รูปขนาดไม่เท่ากัน (Dynamic Aspect Ratio) |
 | **Infinite Scroll** | `useInfiniteScroll.ts` | โหลดรูปเพิ่มอัตโนมัติเมื่อ scroll ถึง bottom |
-| **Hashtag Filtering** | `HashtagFilter.tsx` | คลิก hashtag → เคลียร์รูปเก่า → โหลดรูปที่ match |
+| **Multi-Select Hashtags** | `HashtagFilter.tsx` | สามารถคลิกเลือกหลาย hashtag เพื่อกรองรูปแบบ OR ได้ |
 | **Responsive Design** | Tailwind CSS breakpoints | 1 col (mobile) → 2 col (tablet) → 3-4 col (desktop) |
 
 ---
@@ -205,7 +205,7 @@ sequenceDiagram
 
 | Endpoint | Function | Usage |
 |----------|----------|-------|
-| `GET /api/images?page=&limit=&hashtag=` | `getImages()` | ดึงรูปภาพ + pagination + filter |
+| `GET /api/images?page=&limit=&hashtags=` | `getImages()` | ดึงรูปภาพ + pagination + multi-select filter |
 | `GET /api/hashtags` | `getHashtags()` | ดึง hashtag ทั้งหมดพร้อม count |
 
 ---
