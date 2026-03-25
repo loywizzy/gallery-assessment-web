@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gallery_frontend
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    networks:
+      - gallery_network
+
+networks:
+  # Reference the network created by the backend compose
+  gallery_network:
+    external: true
+    name: gallery_network
